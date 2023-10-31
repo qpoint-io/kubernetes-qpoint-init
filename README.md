@@ -19,3 +19,5 @@ us-docker.pkg.dev/qpoint-edge/public/kubernetes-qtap-init:<TAG>
 The above will redirect destination ports within the container (or Kubernetes pod) to a local destination port. A list of UIDs and GIDs can be provided to excluded from the redirection.
 
 This same image can be used as a Kubernetes [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) with the relevant environment variables set.
+
+See (example.yaml) for an example of usage within Kubernetes.
