@@ -13,8 +13,8 @@ if [[ -z "$TO_PORT" ]]; then
     exit 1
 fi
 
-if [[ -z "$ACCEPT_UID" ]] && [[ -z "$ACCEPT_GID" ]]; then
-    echo "Error: Both ACCEPT_UID and ACCEPT_GID environment variables are not set. At least one must be set."
+if [[ -z "$ACCEPT_UIDS" ]] && [[ -z "$ACCEPT_GIDS" ]]; then
+    echo "Error: Both ACCEPT_UIDS and ACCEPT_GIDS environment variables are not set. At least one must be set."
     exit 1
 fi
 
@@ -23,19 +23,19 @@ IFS=',' read -ra DEST_PORTS <<< "$DESTINATION_PORTS"
 
 # Loop through each port in the array
 for PORT in "${DEST_PORTS[@]}"; do
-    # If ACCEPT_UID is set, then loop through each UID
-    if [[ -n "$ACCEPT_UID" ]]; then
-        IFS=',' read -ra UIDS <<< "$ACCEPT_UID"
-        for UID in "${UIDS[@]}"; do
-            iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -m owner --uid-owner "$UID" -j ACCEPT
+    # If ACCEPT_UIDS is set, then loop through each UID
+    if [[ -n "$ACCEPT_UIDS" ]]; then
+        IFS=',' read -ra UIDS <<< "$ACCEPT_UIDS"
+        for USER_ID in "${UIDS[@]}"; do
+            iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -m owner --uid-owner "$USER_ID" -j ACCEPT
         done
     fi
 
-    # If ACCEPT_GID is set, then loop through each GID
-    if [[ -n "$ACCEPT_GID" ]]; then
-        IFS=',' read -ra GIDS <<< "$ACCEPT_GID"
-        for GID in "${GIDS[@]}"; do
-            iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -m owner --gid-owner "$GID" -j ACCEPT
+    # If ACCEPT_GIDS is set, then loop through each GID
+    if [[ -n "$ACCEPT_GIDS" ]]; then
+        IFS=',' read -ra GIDS <<< "$ACCEPT_GIDS"
+        for GROUP_ID in "${GIDS[@]}"; do
+            iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -m owner --gid-owner "$GROUP_ID" -j ACCEPT
         done
     fi
 
