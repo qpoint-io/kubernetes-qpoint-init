@@ -38,8 +38,10 @@ for PORT in "${DEST_PORTS[@]}"; do
             iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -m owner --gid-owner "$GROUP_ID" -j ACCEPT
         done
     fi
+done
 
-    # Redirect rule for each port
+# Now process the redirect rules for each port
+for PORT in "${DEST_PORTS[@]}"; do
     iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -j REDIRECT --to-port "$TO_PORT"
 done
 
