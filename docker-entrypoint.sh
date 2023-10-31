@@ -42,9 +42,9 @@ done
 
 # Now process the redirect rules for each port
 for PORT in "${DEST_PORTS[@]}"; do
-    # If TO_ADDR is set, redirect to a new IP and port; otherwise, just to a new port.
+    # If TO_ADDR is set, use DNAT to redirect to a new IP and port
     if [[ -n "$TO_ADDR" ]]; then
-        iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -j REDIRECT --to-destination "$TO_ADDR:$TO_PORT"
+        iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -j DNAT --to-destination "$TO_ADDR:$TO_PORT"
     else
         iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -j REDIRECT --to-port "$TO_PORT"
     fi
