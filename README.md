@@ -20,4 +20,4 @@ The above will redirect destination ports within the container (or Kubernetes po
 
 This same image can be used as a Kubernetes [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) with the relevant environment variables set.
 
-See (example.yaml) for an example of usage within Kubernetes.
+See [example.yaml](example.yaml) for an example of usage within Kubernetes.
