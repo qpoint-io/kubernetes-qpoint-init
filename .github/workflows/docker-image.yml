@@ -3,6 +3,8 @@ name: Docker Image CI
 on:
   push:
     branches: ["main"]
+    tags:
+      - "v*"
   pull_request:
     branches: ["main"]
 
@@ -14,17 +16,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get current branch
-        id: get_branch
+      - name: Get current branch or tag
+        id: get_ref
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
-            echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+            REF_NAME="${{ github.event.pull_request.head.ref }}"
           else
-            BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
-            echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+            REF_NAME=$(echo ${GITHUB_REF#refs/*/})
           fi
-          echo "Current branch is: $BRANCH_NAME"
+          echo "REF_NAME=$REF_NAME" >> $GITHUB_ENV
+          echo "Current ref is: $REF_NAME"
 
       - name: Docker meta
         id: meta
@@ -33,7 +34,8 @@ jobs:
           images: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qtap-init
           tags: |
             type=sha
-            type=raw,value=branch-${{ env.BRANCH_NAME }},enable=${{ env.BRANCH_NAME != 'main' }}
+            type=raw,value=branch-${{ env.REF_NAME }},enable=${{ env.REF_NAME != 'main' }}
+            type=raw,value=release-${{ env.REF_NAME }},enable=${{ startsWith(env.REF_NAME, 'v') }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
