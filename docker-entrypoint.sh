@@ -2,12 +2,6 @@
 
 set -e
 
-# Check for required environment variables
-if [[ -z "$DESTINATION_PORTS" ]]; then
-    echo "Error: DESTINATION_PORTS environment variable is not set."
-    exit 1
-fi
-
 if [[ -z "$TO_PORT" ]]; then
     echo "Error: TO_PORT environment variable is not set."
     exit 1
@@ -18,37 +12,43 @@ if [[ -z "$ACCEPT_UIDS" ]] && [[ -z "$ACCEPT_GIDS" ]]; then
     exit 1
 fi
 
-# Split the list of ports from DESTINATION_PORTS into an array
-IFS=',' read -ra DEST_PORTS <<< "$DESTINATION_PORTS"
+apply_rules() {
+    local PORT_SPECIFIER="$1"
 
-# Loop through each port in the array
-for PORT in "${DEST_PORTS[@]}"; do
-    # If ACCEPT_UIDS is set, then loop through each UID
+    # Apply rules for UIDs
     if [[ -n "$ACCEPT_UIDS" ]]; then
         IFS=',' read -ra UIDS <<< "$ACCEPT_UIDS"
         for USER_ID in "${UIDS[@]}"; do
-            iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -m owner --uid-owner "$USER_ID" -j ACCEPT
+            iptables -t nat -A OUTPUT -p tcp $PORT_SPECIFIER -m owner --uid-owner "$USER_ID" -j ACCEPT
         done
     fi
 
-    # If ACCEPT_GIDS is set, then loop through each GID
+    # Apply rules for GIDs
     if [[ -n "$ACCEPT_GIDS" ]]; then
         IFS=',' read -ra GIDS <<< "$ACCEPT_GIDS"
         for GROUP_ID in "${GIDS[@]}"; do
-            iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -m owner --gid-owner "$GROUP_ID" -j ACCEPT
+            iptables -t nat -A OUTPUT -p tcp $PORT_SPECIFIER -m owner --gid-owner "$GROUP_ID" -j ACCEPT
         done
     fi
-done
 
-# Now process the redirect rules for each port
-for PORT in "${DEST_PORTS[@]}"; do
-    # If TO_ADDR is set, use DNAT to redirect to a new IP and port
+    # Apply redirect or DNAT rule
     if [[ -n "$TO_ADDR" ]]; then
-        iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -j DNAT --to-destination "$TO_ADDR:$TO_PORT"
+        iptables -t nat -A OUTPUT -p tcp $PORT_SPECIFIER -j DNAT --to-destination "$TO_ADDR:$TO_PORT"
     else
-        iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -j REDIRECT --to-port "$TO_PORT"
+        iptables -t nat -A OUTPUT -p tcp $PORT_SPECIFIER -j REDIRECT --to-port "$TO_PORT"
     fi
-done
+}
+
+# If DESTINATION_PORTS is set, split it into an array and apply rules for each port
+if [[ -n "$DESTINATION_PORTS" ]]; then
+    IFS=',' read -ra DEST_PORTS <<< "$DESTINATION_PORTS"
+    for PORT in "${DEST_PORTS[@]}"; do
+        apply_rules "--dport $PORT"
+    done
+else
+    # Apply rules without specifying dport
+    apply_rules ""
+fi
 
 # Ensure the rules are set
 iptables -t nat -L -n -v
