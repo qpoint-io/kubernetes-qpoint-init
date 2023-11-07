@@ -2,34 +2,32 @@
 
 set -e
 
-if [[ -z "$TO_PORT" ]]; then
-    echo "Error: TO_PORT environment variable is not set."
-    exit 1
-fi
+# Default values for ACCEPT_UIDS and ACCEPT_GIDS
+DEFAULT_ACCEPT_UIDS="1010"  # Default UID of Qtap
+DEFAULT_ACCEPT_GIDS="1010"  # Default GID of Qtap
 
-if [[ -z "$ACCEPT_UIDS" ]] && [[ -z "$ACCEPT_GIDS" ]]; then
-    echo "Error: Both ACCEPT_UIDS and ACCEPT_GIDS environment variables are not set. At least one must be set."
-    exit 1
-fi
+DEFAULT_TO_PORT="10000" # Default listen port of Qtap
+
+# Set default values for ACCEPT_UIDS and ACCEPT_GIDS if they are not provided
+ACCEPT_UIDS="${ACCEPT_UIDS:-$DEFAULT_ACCEPT_UIDS}"
+ACCEPT_GIDS="${ACCEPT_GIDS:-$DEFAULT_ACCEPT_GIDS}"
+
+TO_PORT="${TO_PORT:-$DEFAULT_TO_PORT}"
 
 apply_rules() {
     local PORT_SPECIFIER="$1"
 
     # Apply rules for UIDs
-    if [[ -n "$ACCEPT_UIDS" ]]; then
-        IFS=',' read -ra UIDS <<< "$ACCEPT_UIDS"
-        for USER_ID in "${UIDS[@]}"; do
-            iptables -t nat -A OUTPUT -p tcp $PORT_SPECIFIER -m owner --uid-owner "$USER_ID" -j ACCEPT
-        done
-    fi
+    IFS=',' read -ra UIDS <<< "$ACCEPT_UIDS"
+    for USER_ID in "${UIDS[@]}"; do
+        iptables -t nat -A OUTPUT -p tcp $PORT_SPECIFIER -m owner --uid-owner "$USER_ID" -j ACCEPT
+    done
 
     # Apply rules for GIDs
-    if [[ -n "$ACCEPT_GIDS" ]]; then
-        IFS=',' read -ra GIDS <<< "$ACCEPT_GIDS"
-        for GROUP_ID in "${GIDS[@]}"; do
-            iptables -t nat -A OUTPUT -p tcp $PORT_SPECIFIER -m owner --gid-owner "$GROUP_ID" -j ACCEPT
-        done
-    fi
+    IFS=',' read -ra GIDS <<< "$ACCEPT_GIDS"
+    for GROUP_ID in "${GIDS[@]}"; do
+        iptables -t nat -A OUTPUT -p tcp $PORT_SPECIFIER -m owner --gid-owner "$GROUP_ID" -j ACCEPT
+    done
 
     # Apply redirect or DNAT rule
     if [[ -n "$TO_ADDR" ]]; then
