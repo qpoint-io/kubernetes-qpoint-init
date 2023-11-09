@@ -5,17 +5,22 @@ set -e
 # Default values for ACCEPT_UIDS and ACCEPT_GIDS
 DEFAULT_ACCEPT_UIDS="1010"  # Default UID of Qtap
 DEFAULT_ACCEPT_GIDS="1010"  # Default GID of Qtap
-
-DEFAULT_TO_PORT="10000" # Default listen port of Qtap
+DEFAULT_PORT_MAPPING="10080:80,10443:443,10000:"
 
 # Set default values for ACCEPT_UIDS and ACCEPT_GIDS if they are not provided
 ACCEPT_UIDS="${ACCEPT_UIDS:-$DEFAULT_ACCEPT_UIDS}"
 ACCEPT_GIDS="${ACCEPT_GIDS:-$DEFAULT_ACCEPT_GIDS}"
 
-TO_PORT="${TO_PORT:-$DEFAULT_TO_PORT}"
+PORT_MAPPING="${PORT_MAPPING:-$DEFAULT_PORT_MAPPING}"
 
 apply_rules() {
-    local PORT_SPECIFIER="$1"
+    local TO_PORT="$1"
+    local DEST_PORT="$2"
+
+    local PORT_SPECIFIER=""
+    if [[ -n "$DEST_PORT" ]]; then
+        PORT_SPECIFIER="--dport $DEST_PORT"
+    fi
 
     # Apply rules for UIDs
     IFS=',' read -ra UIDS <<< "$ACCEPT_UIDS"
@@ -37,16 +42,14 @@ apply_rules() {
     fi
 }
 
-# If DESTINATION_PORTS is set, split it into an array and apply rules for each port
-if [[ -n "$DESTINATION_PORTS" ]]; then
-    IFS=',' read -ra DEST_PORTS <<< "$DESTINATION_PORTS"
-    for PORT in "${DEST_PORTS[@]}"; do
-        apply_rules "--dport $PORT"
-    done
-else
-    # Apply rules without specifying dport
-    apply_rules ""
-fi
+IFS=',' read -ra MAPPINGS <<< "$PORT_MAPPING"
+for MAPPING in "${MAPPINGS[@]}"; do
+    IFS=':' read -ra PORTS <<< "$MAPPING"
+    TO_PORT="${PORTS[0]}"
+    DEST_PORT="${PORTS[1]}"
+
+    apply_rules "$TO_PORT" "$DEST_PORT"
+done
 
 # Ensure the rules are set
 iptables -t nat -L -n -v

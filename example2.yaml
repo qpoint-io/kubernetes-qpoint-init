@@ -28,6 +28,8 @@ spec:
       image: us-docker.pkg.dev/qpoint-edge/public/qtap:<SHA>
       ports:
         - containerPort: 10000
+        - containerPort: 10080
+        - containerPort: 10443
       command: ["qtap"]
       args: ["gateway", "--no-hot-restart"]
       env:
