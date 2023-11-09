@@ -2,6 +2,10 @@
 
 set -e
 
+if [[ -n "$TO_DOMAIN" ]]; then
+    TO_ADDR=$(dig +short "$TO_DOMAIN" | head -n 1)
+fi
+
 # Default values for ACCEPT_UIDS and ACCEPT_GIDS
 DEFAULT_ACCEPT_UIDS="1010"  # Default UID of Qtap
 DEFAULT_ACCEPT_GIDS="1010"  # Default GID of Qtap
