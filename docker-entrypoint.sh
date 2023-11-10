@@ -2,8 +2,23 @@
 
 set -e
 
+# Function to resolve domain to IP
+resolve_domain_to_ip() {
+    local domain=$1
+    local ip
+
+    ip=$(dig +short "$domain" | head -n 1)
+    if [[ -z "$ip" ]]; then
+        echo "Error: Failed to resolve domain $domain"
+        exit 1
+    fi
+
+    echo "$ip"
+}
+
+# If provided resolve TO_DOMAIN to IP and set it to TO_ADDR
 if [[ -n "$TO_DOMAIN" ]]; then
-    TO_ADDR=$(dig +short "$TO_DOMAIN" | head -n 1)
+    TO_ADDR=$(resolve_domain_to_ip "$TO_DOMAIN")
 fi
 
 # Default values for ACCEPT_UIDS and ACCEPT_GIDS
