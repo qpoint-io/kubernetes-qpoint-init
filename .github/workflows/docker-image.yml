@@ -27,6 +27,13 @@ jobs:
           echo "REF_NAME=$REF_NAME" >> $GITHUB_ENV
           echo "Current ref is: $REF_NAME"
 
+      - name: Modify REF_NAME if it's a version tag
+        if: startsWith(env.REF_NAME, 'v')
+        run: |
+          REF_NAME="${{ env.REF_NAME }}"
+          MODIFIED_REF_NAME="${REF_NAME:1}"
+          echo "MODIFIED_REF_NAME=$MODIFIED_REF_NAME" >> $GITHUB_ENV
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -35,7 +42,7 @@ jobs:
           tags: |
             type=sha
             type=raw,value=branch-${{ env.REF_NAME }},enable=${{ env.REF_NAME != 'main' }}
-            type=raw,value=release-${{ env.REF_NAME }},enable=${{ startsWith(env.REF_NAME, 'v') }}
+            type=raw,value=release-${{ env.MODIFIED_REF_NAME }},enable=${{ startsWith(env.REF_NAME, 'v') }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
