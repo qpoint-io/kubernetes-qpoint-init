@@ -42,7 +42,7 @@ jobs:
           tags: |
             type=sha
             type=raw,value=branch-${{ env.REF_NAME }},enable=${{ env.REF_NAME != 'main' }}
-            type=raw,value=${{ env.MODIFIED_REF_NAME }},enable=${{ startsWith(env.REF_NAME, 'v') }}
+            type=raw,value=v${{ env.MODIFIED_REF_NAME }},enable=${{ startsWith(env.REF_NAME, 'v') }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
