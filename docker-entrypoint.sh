@@ -25,12 +25,13 @@ fi
 DEFAULT_ACCEPT_UIDS="1010"  # Default UID of Qtap
 DEFAULT_ACCEPT_GIDS="1010"  # Default GID of Qtap
 DEFAULT_PORT_MAPPING="10080:80,10443:443,10000:"
+DEFAULT_ACCEPT_BLOCKS="10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"  # RFC 1918 address blocks
 
-# Set default values for ACCEPT_UIDS and ACCEPT_GIDS if they are not provided
+# Set default values if they are not provided
 ACCEPT_UIDS="${ACCEPT_UIDS:-$DEFAULT_ACCEPT_UIDS}"
 ACCEPT_GIDS="${ACCEPT_GIDS:-$DEFAULT_ACCEPT_GIDS}"
-
 PORT_MAPPING="${PORT_MAPPING:-$DEFAULT_PORT_MAPPING}"
+ACCEPT_BLOCKS="${ACCEPT_BLOCKS:-$DEFAULT_ACCEPT_BLOCKS}"
 
 apply_rules() {
     local TO_PORT="$1"
@@ -60,6 +61,12 @@ apply_rules() {
         iptables -t nat -A OUTPUT -p tcp $PORT_SPECIFIER -j REDIRECT --to-port "$TO_PORT"
     fi
 }
+
+# Apply rules for each block
+IFS=',' read -ra BLOCKS <<< "$ACCEPT_BLOCKS"
+for BLOCK in "${BLOCKS[@]}"; do
+    iptables -t nat -A OUTPUT -p tcp -d "$BLOCK" -j ACCEPT
+done
 
 IFS=',' read -ra MAPPINGS <<< "$PORT_MAPPING"
 for MAPPING in "${MAPPINGS[@]}"; do
