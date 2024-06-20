@@ -5,7 +5,7 @@ metadata:
 spec:
   initContainers:
     - name: qtap-init
-      image: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qtap-init:<SHA>
+      image: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qpoint-init:<SHA>
       securityContext:
         capabilities:
           add:
@@ -27,11 +27,12 @@ spec:
     - name: proxy
       image: us-docker.pkg.dev/qpoint-edge/public/qtap:<SHA>
       ports:
-        - containerPort: 10000
         - containerPort: 10080
         - containerPort: 10443
-      command: ["qtap"]
-      args: ["gateway", "--no-hot-restart"]
+        - containerPort: 18080
+        - containerPort: 18443
+      command: ["qpoint"]
+      args: ["proxy", "--envoy-log-level=error", "--log-level=info", "--dns-lookup-family=V4_ONLY"]
       env:
-        - name: TOKEN
+        - name: REGISTRATION_TOKEN
           value: "<TOKEN>"

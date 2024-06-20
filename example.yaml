@@ -5,14 +5,10 @@ metadata:
 spec:
   initContainers:
     - name: qtap-init
-      image: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qtap-init:sha-b2640d3
+      image: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qpoint-init:<SHA>
       env:
-        - name: DESTINATION_PORTS
-          value: "443"
-        - name: TO_ADDR
-          value: "192.168.194.219"
-        - name: TO_PORT
-          value: "10000"
+        - name: PORT_MAPPING
+          value: "10080:80,10443:443"
         - name: ACCEPT_UIDS
           value: "0"
         - name: ACCEPT_GIDS
