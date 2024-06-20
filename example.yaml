@@ -4,7 +4,7 @@ metadata:
   name: relayed-pod
 spec:
   initContainers:
-    - name: qtap-init
+    - name: qpoint-init
       image: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qpoint-init:<SHA>
       env:
         - name: PORT_MAPPING

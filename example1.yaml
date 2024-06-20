@@ -4,8 +4,8 @@ metadata:
   name: relayed-pod
 spec:
   initContainers:
-    - name: qtap-init
-      image: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qtap-init:<SHA>
+    - name: qpoint-init
+      image: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qpoint-init:<SHA>
       env:
         - name: TO_ADDR
           value: "192.168.1.1"
