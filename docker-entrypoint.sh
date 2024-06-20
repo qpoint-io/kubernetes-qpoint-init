@@ -29,13 +29,16 @@ resolve_domain_to_ipv6() {
         exit 1
     fi
 
-    echo "$ip"
+    echo "[$ip]"
 }
 
 # If provided, resolve TO_DOMAIN to IP and set it to TO_IPV4_ADDR and TO_IPV6_ADDR
 if [[ -n "$TO_DOMAIN" ]]; then
+    echo "Resolving $TO_DOMAIN"
     TO_IPV4_ADDR=$(resolve_domain_to_ipv4 "$TO_DOMAIN")
+    echo "IPv4: $TO_IPV4_ADDR"
     TO_IPV6_ADDR=$(resolve_domain_to_ipv6 "$TO_DOMAIN")
+    echo "IPv6: $TO_IPV6_ADDR"
 fi
 
 # Default values for ACCEPT_UIDS and ACCEPT_GIDS
