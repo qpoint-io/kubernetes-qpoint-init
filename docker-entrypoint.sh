@@ -10,8 +10,7 @@ resolve_domain_to_ipv4() {
     # If there are multiple addresses returned, the first address is selected
     ip=$(dig +short A "$domain" | head -n 1)
     if [[ -z "$ip" ]]; then
-        echo "Error: Failed to resolve domain $domain"
-        exit 1
+       echo ""
     fi
 
     echo "$ip"
@@ -25,12 +24,14 @@ resolve_domain_to_ipv6() {
     # If there are multiple addresses returned, the first address is selected
     ip=$(dig +short AAAA "$domain" | head -n 1)
     if [[ -z "$ip" ]]; then
-        echo "Error: Failed to resolve domain $domain"
-        exit 1
+        echo ""
     fi
 
     echo "[$ip]"
 }
+
+TO_IPV4_ADDR=""
+TO_IPV6_ADDR=""
 
 # If provided, resolve TO_DOMAIN to IP and set it to TO_IPV4_ADDR and TO_IPV6_ADDR
 if [[ -n "$TO_DOMAIN" ]]; then

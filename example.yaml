@@ -13,6 +13,8 @@ spec:
           value: "0"
         - name: ACCEPT_GIDS
           value: "0"
+        - name: TO_DOMAIN
+          value: "api.qpoint.io"
       securityContext:
         capabilities:
           add:
