@@ -9,11 +9,11 @@ resolve_domain_to_ipv4() {
 
     # If there are multiple addresses returned, the first address is selected
     ip=$(dig +short A "$domain" | head -n 1)
-    if [[ -z "$ip" ]]; then
-       echo ""
+    if [[ -n "$ip" ]]; then
+       echo "$ip"
     fi
 
-    echo "$ip"
+    echo ""
 }
 
 # Function to resolve domain to IPv6
@@ -23,11 +23,11 @@ resolve_domain_to_ipv6() {
 
     # If there are multiple addresses returned, the first address is selected
     ip=$(dig +short AAAA "$domain" | head -n 1)
-    if [[ -z "$ip" ]]; then
-        echo ""
+    if [[ -n "$ip" ]]; then
+        echo "[$ip]"
     fi
 
-    echo "[$ip]"
+    echo ""
 }
 
 TO_IPV4_ADDR=""
