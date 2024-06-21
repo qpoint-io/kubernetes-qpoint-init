@@ -1,4 +1,4 @@
-FROM alpine:3.18
+FROM alpine:3.20
 
 RUN apk add --no-cache bash bind-tools iptables && rm -rf /var/cache/apk/*
 

@@ -38,7 +38,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qtap-init
+          images: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qpoint-init
           tags: |
             type=sha
             type=raw,value=branch-${{ env.REF_NAME }},enable=${{ env.REF_NAME != 'main' }}

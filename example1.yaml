@@ -4,15 +4,17 @@ metadata:
   name: relayed-pod
 spec:
   initContainers:
-    - name: qtap-init
-      image: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qtap-init:<SHA>
+    - name: qpoint-init
+      image: us-docker.pkg.dev/qpoint-edge/public/kubernetes-qpoint-init:<SHA>
       env:
-        - name: DESTINATION_PORTS
-          value: "443"
         - name: TO_ADDR
-          value: "192.168.194.219"
-        - name: TO_PORT
-          value: "10000"
+          value: "192.168.1.1"
+        - name: PORT_MAPPING
+          value: "10080:80,10443:443"
+        - name: ACCEPT_UIDS
+          value: "0"
+        - name: ACCEPT_GIDS
+          value: "0"
       securityContext:
         capabilities:
           add:
